@@ -6,7 +6,7 @@
   };
 
   outputs =
-    { self, nixpkgs }:
+    { nixpkgs, ... }:
     let
       supportedSystems = [
         "x86_64-linux"
@@ -29,15 +29,15 @@
         { pkgs, system }:
         let
           haskellPackages = pkgs.haskell.packages.${ghcVersion};
-          flakeRoot = toString self;
           cabal-build = pkgs.writeShellApplication {
             name = "cabal-build";
             runtimeInputs = with pkgs; [
               cabal-install
               haskellPackages.ghc
+              git
             ];
             text = ''
-              cd "${flakeRoot}/exercises"
+              cd "$(git rev-parse --show-toplevel)/exercises"
               cabal v2-build
             '';
           };
@@ -47,10 +47,13 @@
             runtimeInputs = with pkgs; [
               cabal-install
               haskellPackages.ghc
+              git
+              coreutils
             ];
             text = ''
-              cd "${flakeRoot}/exercises"
-              cabal v2-exec runhaskell "$@"
+              file=$(realpath "$1")
+              cd "$(git rev-parse --show-toplevel)/exercises"
+              cabal v2-exec runhaskell "$file"
             '';
           };
 
@@ -67,6 +70,15 @@
               cabal-test
             ];
 
+            LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [ pkgs.zlib ];
+
+            shellHook = ''
+              # Automatic updates are only performed when the hackage index does not exist.
+              if ! cabal list --simple-output >/dev/null 2>&1; then
+                echo "First time using, downloading the Hackage index..."
+                cabal update
+              fi
+            '';
           };
         }
       );
