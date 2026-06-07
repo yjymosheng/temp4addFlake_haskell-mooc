@@ -187,3 +187,4 @@ power = todo
 
 ilog3 :: Integer -> Integer
 ilog3 = todo
+yy
