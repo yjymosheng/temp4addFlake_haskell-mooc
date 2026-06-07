@@ -2,3 +2,8 @@
 *.lock
 .stack-work
 score.json
+
+# Nix flake
+.envrc
+dist-newstyle/
+.direnv/
