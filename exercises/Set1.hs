@@ -32,9 +32,9 @@ import Mooc.Todo
 -- 练习1：定义变量 one 和 two。它们的类型应该是 Int，并且
 -- values 1 and 2, respectively.
 -- 值分别为 1 和 2。
-one :: Int 
-one = 1 
-two :: Int 
+one :: Int
+one = 1
+two :: Int
 two = 2
 ------------------------------------------------------------------------------
 -- Ex 2: define the function double of type Integer->Integer. Double
@@ -43,7 +43,7 @@ two = 2
 -- 应该接受一个参数并返回它乘以二的结果。
 
 double :: Integer -> Integer
-double x = x * 2 
+double x = x * 2
 ------------------------------------------------------------------------------
 -- Ex 3: define the function quadruple that uses the function double
 -- 练习3：定义函数 quadruple，使用上一个练习中的函数 double
@@ -78,10 +78,9 @@ quadruple = double . double
 --   distance 1 1 4 5  ==>  5.0
 --   distance 1 1 4 5  ==>  5.0
 
-distance = todo
+distance  x1 y1 x2 y2 = sqrt (  (x1 - x2 )^  2   +  (y1 - y2 )^ 2 )
 
 --------------------------------------------------------------------
-- ---------
 -- Ex 5: define the function eeny that ren inuts
 -- 练习5：定义函数 ee and "meeny" for odd inputs.
 -- 对于奇数输入返回 "meeny"。
@@ -90,7 +89,7 @@ distance = todo
 -- 附：看一下内置函数 "even"
 
 eeny :: Integer -> String
-eeny = todo
+eeny  x = if odd  x then  "meeny" else "eeny"
 
 ------------------------------------------------------------------------------
 -- Ex 6: here's the function checkPassword from the course material.
@@ -101,10 +100,10 @@ eeny = todo
 -- "mellon"。
 
 checkPassword :: String -> String
-checkPassword password =
-  if password == "swordfish"
-    then "You're in."
-    else "ACCESS DENIED!"
+checkPassword password
+  | password == "swordfish" = "You're in."
+  | password == "mellon" = "You're in."
+  | otherwise = "ACCESS DENIED!"
 
 ------------------------------------------------------------------------------
 -- Ex 7: A postal service prices packages the following way.
@@ -122,7 +121,10 @@ checkPassword password =
 -- （以克为单位），并返回费用（以积分为单位）。
 
 postagePrice :: Int -> Int
-postagePrice = todo
+postagePrice  x  
+  | x  <= 500 = 250 
+  | x > 500 && x <=5000 = 300 + x 
+  | x > 5000  = 6000 
 
 ------------------------------------------------------------------------------
 -- Ex 8: define a function isZero that returns True if it is given an
@@ -136,7 +138,8 @@ postagePrice = todo
 -- Ps. remember, the type of booleans in haskell is Bool
 -- 附：记住，Haskell 中布尔值的类型是 Bool
 
-isZero = todo
+isZero 0 = True
+isZero x = False
 
 ------------------------------------------------------------------------------
 -- Ex 9: implement using recursion a function sumTo such that
@@ -147,7 +150,7 @@ isZero = todo
 -- 计算总和 1+2+...+n
 
 sumTo :: Integer -> Integer
-sumTo = todo
+sumTo n = sum [1..n]
 
 ------------------------------------------------------------------------------
 -- Ex 10: power n k should compute n to the power k (i.e. n^k)
@@ -158,7 +161,7 @@ sumTo = todo
 -- 不需要处理 k 为负数的情况。
 
 power :: Integer -> Integer -> Integer
-power = todo
+power  n k = product (replicate (fromInteger k)  n)
 
 ------------------------------------------------------------------------------
 -- Ex 11: ilog3 n should be the number of times you can divide given
@@ -188,5 +191,5 @@ power = todo
 --   ilog3 7 ==> 2
 
 ilog3 :: Integer -> Integer
-ilog3 = todo
-yy
+ilog3  0 =  0 
+ilog3  x =  1  + ilog3 ( x `div` 3  ) 

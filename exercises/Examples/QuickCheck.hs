@@ -22,17 +22,29 @@ propRevTwo :: [Int] -> [Int] -> Property
 propRevTwo xs ys = rev (xs ++ ys) === rev ys ++ rev xs
 
 -- *Examples.QuickCheck> quickCheck propRevSmall
+-- 在GHCi中对propRevSmall运行quickCheck
 -- +++ OK, passed 1 test.
+-- +++ 通过，1个测试用例通过
 -- *Examples.QuickCheck> quickCheck propRevTwice
+-- 在GHCi中对propRevTwice运行quickCheck
 -- +++ OK, passed 100 tests.
+-- +++ 通过，100个测试用例通过
 -- *Examples.QuickCheck> quickCheck propRevMedium
+-- 在GHCi中对propRevMedium运行quickCheck
 -- *** Failed! Falsified (after 1 test):
+-- *** 失败！被证伪（经过1次测试后）：
 -- [2,3,1] /= [3,2,1]
+-- [2,3,1] 不等于 [3,2,1]
 -- *Examples.QuickCheck> quickCheck propRevTwo
+-- 在GHCi中对propRevTwo运行quickCheck
 -- *** Failed! Falsified (after 5 tests and 8 shrinks):
+-- *** 失败！被证伪（经过5次测试和8次缩小后）：
+-- [0]
 -- [0]
 -- [0,1]
+-- [0,1]
 -- [0,1,0] /= [1,0,0]
+-- [0,1,0] 不等于 [1,0,0]
 
 propLast :: [Int] -> Property
 propLast xs = last xs === head (reverse xs)
@@ -54,9 +66,14 @@ listHasZero :: [Int] -> Bool
 listHasZero xs = elem 0 xs
 
 -- *Examples.QuickCheck> quickCheck (listHasZero [1,0,2])
+-- 在GHCi中对listHasZero应用于[1,0,2]运行quickCheck
 -- +++ OK, passed 1 test.
+-- +++ 通过，1个测试用例通过
 -- *Examples.QuickCheck> quickCheck listHasZero
+-- 在GHCi中对listHasZero运行quickCheck
 -- *** Failed! Falsified (after 1 test):
+-- *** 失败！被证伪（经过1次测试后）：
+-- []
 -- []
 
 propSort :: NonEmptyList Int -> Property

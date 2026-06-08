@@ -12,6 +12,7 @@ main :: IO ()
 main = run port application
 
 -- type Application = Request -> (Response -> IO ResponseReceived) -> IO ResponseReceived
+-- 类型 Application = Request -> (Response -> IO ResponseReceived) -> IO ResponseReceived
 application :: Application
 application request respond =
   respond (responseLBS status200 [] (LB.pack "Hello World!"))
