@@ -32,7 +32,10 @@ import Mooc.Todo
 -- 练习1：定义变量 one 和 two。它们的类型应该是 Int，并且
 -- values 1 and 2, respectively.
 -- 值分别为 1 和 2。
-
+one :: Int 
+one = 1 
+two :: Int 
+two = 2
 ------------------------------------------------------------------------------
 -- Ex 2: define the function double of type Integer->Integer. Double
 -- 练习2：定义类型为 Integer->Integer 的函数 double。Double
@@ -40,8 +43,7 @@ import Mooc.Todo
 -- 应该接受一个参数并返回它乘以二的结果。
 
 double :: Integer -> Integer
-double x = todo
-
+double x = x * 2 
 ------------------------------------------------------------------------------
 -- Ex 3: define the function quadruple that uses the function double
 -- 练习3：定义函数 quadruple，使用上一个练习中的函数 double
@@ -51,7 +53,7 @@ double x = todo
 -- 四的结果。
 
 quadruple :: Integer -> Integer
-quadruple x = todo
+quadruple = double . double
 
 ------------------------------------------------------------------------------
 -- Ex 4: define the function distance. It should take four arguments of
