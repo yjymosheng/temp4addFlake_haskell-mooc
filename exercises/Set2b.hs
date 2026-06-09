@@ -23,7 +23,11 @@ import Data.List
 -- 提示！模式匹配是你的好朋友。
 
 binomial :: Integer -> Integer -> Integer
-binomial = todo
+binomial  n 0  = 1
+binomial  0 k = 0
+binomial  n k  = binomial (n-1) k + binomial (n-1) (k-1)
+
+
 
 ------------------------------------------------------------------------------
 -- Ex 2: implement the odd factorial function. Odd factorial is like
@@ -39,7 +43,7 @@ binomial = todo
 --   oddFactorial 6 ==> 5*3*1 ==> 15
 
 oddFactorial :: Integer -> Integer
-oddFactorial = todo
+oddFactorial x = product [1,3..x]
 
 ------------------------------------------------------------------------------
 -- Ex 3: implement the Euclidean Algorithm for finding the greatest
@@ -93,7 +97,9 @@ oddFactorial = todo
 -- * https://en.wikipedia.org/wiki/Euclidean_algorithm
 
 myGcd :: Integer -> Integer -> Integer
-myGcd = todo
+myGcd a 0 =  a
+myGcd 0 b =  b
+myGcd a b =  if a > b then myGcd (a-b) b else myGcd a (b-a)
 
 ------------------------------------------------------------------------------
 -- Ex 4: Implement the function leftpad which adds space characters
@@ -118,7 +124,7 @@ myGcd = todo
 -- * 你可以用 length 函数计算字符串的长度
 
 leftpad :: String -> Int -> String
-leftpad = todo
+leftpad str len = replicate (len - length str) ' ' ++ str
 
 ------------------------------------------------------------------------------
 -- Ex 5: let's make a countdown for a rocket! Given a number, you
@@ -143,7 +149,10 @@ leftpad = todo
 -- * 你可能需要一个递归辅助函数
 
 countdown :: Integer -> String
-countdown = todo
+countdown n = "Ready! " ++ concat (f n) ++ "Liftoff!"
+    where
+        f s = [show s ++ "... " | s <- [s,s-1..1]]
+
 
 ------------------------------------------------------------------------------
 -- Ex 6: implement the function smallestDivisor that returns the
@@ -171,7 +180,8 @@ countdown = todo
 -- 提示：记住 mod 函数！
 
 smallestDivisor :: Integer -> Integer
-smallestDivisor = todo
+smallestDivisor n
+    | 
 
 ------------------------------------------------------------------------------
 -- Ex 7: implement a function isPrime that checks if the given number
