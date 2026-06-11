@@ -180,8 +180,8 @@ countdown n = "Ready! " ++ concat (f n) ++ "Liftoff!"
 -- 提示：记住 mod 函数！
 
 smallestDivisor :: Integer -> Integer
-smallestDivisor n
-    | 
+smallestDivisor n =  head  [ s |  s <- [2..n] ,   n `mod` s ==0  ]
+    
 
 ------------------------------------------------------------------------------
 -- Ex 7: implement a function isPrime that checks if the given number
@@ -193,7 +193,9 @@ smallestDivisor n
 -- 附：0 和 1 不是质数
 
 isPrime :: Integer -> Bool
-isPrime = todo
+isPrime 0  = False
+isPrime 1 = False
+isPrime n = smallestDivisor n == n 
 
 ------------------------------------------------------------------------------
 -- Ex 8: implement a function biggestPrimeAtMost that returns the
@@ -216,4 +218,5 @@ isPrime = todo
 --   biggestPrimeAtMost 10 ==> 7
 
 biggestPrimeAtMost :: Integer -> Integer
-biggestPrimeAtMost = todo
+biggestPrimeAtMost 2  =  2 
+biggestPrimeAtMost  n =  if isPrime  n  then  n else  biggestPrimeAtMost (n-1)
