@@ -17,6 +17,7 @@ import Mooc.Todo
 import Data.Char
 import Data.Either
 import Data.List
+import Set1 (power)
 
 ------------------------------------------------------------------------------
 -- Ex 1: implement the function maxBy that takes as argument a
@@ -109,8 +110,8 @@ palindromeHalfs xs = map firstHalf (filter palindrome xs)
 
 firstHalf  s =  take  ((length s + 1 ) `div`   2 ) s
 
-palindrome :: String  ->  Bool 
-palindrome s = reverse s  == s 
+palindrome :: String  ->  Bool
+palindrome s = reverse s  == s
 
 ------------------------------------------------------------------------------
 -- Ex 5: Implement a function capitalize that takes in a string and
@@ -135,8 +136,9 @@ palindrome s = reverse s  == s
 --   capitalize "goodbye cruel world" ==> "Goodbye Cruel World"
 
 capitalize :: String -> String
-capitalize = todo
-
+capitalize s  = unwords $ map f ( words s )
+    where
+        f (x :xs )  = toUpper x : xs
 ------------------------------------------------------------------------------
 -- Ex 6: powers k max should return all the powers of k that are less
 -- 练习6：powers k max 应该返回 k 的所有
@@ -157,7 +159,7 @@ capitalize = todo
 --   * 函数 takeWhile
 
 powers :: Int -> Int -> [Int]
-powers k max = todo
+powers k max = takeWhile (<= max)  ( map (k^) [0..])
 
 ------------------------------------------------------------------------------
 -- Ex 7: implement a functional while loop. While should be a function
@@ -187,7 +189,9 @@ powers k max = todo
 --     ==> Avvt
 
 while :: (a->Bool) -> (a->a) -> a -> a
-while check update value = todo
+while check update value = if check value
+    then while check   update (update value   )
+    else  value
 
 ------------------------------------------------------------------------------
 -- Ex 8: another version of a while loop. This time, the check
@@ -216,7 +220,10 @@ while check update value = todo
 -- 提示！记住第2讲中的 case-of 表达式。
 
 whileRight :: (a -> Either b a) -> a -> b
-whileRight check x = todo
+whileRight check x = case  check x  of
+    Left mes  -> mes
+    Right num  -> whileRight check num
+
 
 -- for the whileRight examples:
 -- 用于 whileRight 的示例：
@@ -248,7 +255,7 @@ bomb x = Right (x-1)
 -- 提示！这是列表推导式的绝佳应用
 
 joinToLength :: Int -> [String] -> [String]
-joinToLength = todo
+joinToLength len ss = [ x ++  y |  x <- ss , y <- ss , length x + length y == len ]
 
 ------------------------------------------------------------------------------
 -- Ex 10: implement the operator +|+ that returns a list with the first
@@ -266,6 +273,11 @@ joinToLength = todo
 --   [1,2,3] +|+ [4,5,6]  ==> [1,4]
 --   [] +|+ [True]        ==> [True]
 --   [] +|+ []            ==> []
+(+|+) :: [a] -> [a] -> [a ]
+(+|+) [] []  =  []
+(+|+) [] b  =  [ head b]
+(+|+) a []  =  [ head a ]
+(+|+) a b  =  [head a, head b]
 
 
 ------------------------------------------------------------------------------
@@ -291,7 +303,7 @@ joinToLength = todo
 --   sumRights [Left "bad!", Left "missing"]         ==>  0
 
 sumRights :: [Either a Int] -> Int
-sumRights = todo
+sumRights inputs = sum $ map (either (const 0) id) inputs
 
 ------------------------------------------------------------------------------
 -- Ex 12: recall the binary function composition operation
@@ -312,7 +324,7 @@ sumRights = todo
 --   multiCompose [(3*), (2^), (+1)] 0 ==> 6
 --   multiCompose [(+1), (2^), (3*)] 0 ==> 2
 
-multiCompose fs = todo
+multiCompose fs = foldr (.) id fs 
 
 ------------------------------------------------------------------------------
 -- Ex 13: let's consider another way to compose multiple functions. Given
@@ -339,7 +351,9 @@ multiCompose fs = todo
 --   multiApp id [head, (!!2), last] "axbxc" ==> ['a','b','c'] i.e. "abc"
 --   multiApp sum [head, (!!2), last] [1,9,2,9,3] ==> 6
 
-multiApp = todo
+
+multiApp f gs x  =f (map ($ x) gs) 
+
 
 ------------------------------------------------------------------------------
 -- Ex 14: in this exercise you get to implement an interpreter for a
@@ -394,4 +408,13 @@ multiApp = todo
 -- 惊喜将不起作用。参见教材第 3.8 节。
 
 interpreter :: [String] -> [String]
-interpreter commands = todo
+interpreter commands = reverse $ snd $ foldl step ((0,0), []) commands
+  where
+    step ((x,y), outs) cmd = case cmd of
+      "up"     -> ((x, y+1), outs)
+      "down"   -> ((x, y-1), outs)
+      "left"   -> ((x-1, y), outs)
+      "right"  -> ((x+1, y), outs)
+      "printX" -> ((x, y), show x : outs)
+      "printY" -> ((x, y), show y : outs)
+      _        -> ((x, y), outs)   
