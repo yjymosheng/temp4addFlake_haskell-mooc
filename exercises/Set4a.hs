@@ -55,7 +55,13 @@ import Data.Array
 -- 从类型中移除了 Eq a => 约束的话！
 
 allEqual :: Eq a => [a] -> Bool
-allEqual xs = todo
+allEqual [] = True
+allEqual (x:xs) = go xs  x
+    where
+        go [] _ = True
+        go (a:as) tmp = a== tmp  && go as a
+
+
 
 ------------------------------------------------------------------------------
 -- Ex 2: implement the function distinct which returns True if all
@@ -78,7 +84,9 @@ allEqual xs = todo
 --   distinct [1,2] ==> True
 
 distinct :: Eq a => [a] -> Bool
-distinct = todo
+distinct [] =  True
+distinct (x:xs ) = notElem x xs  && distinct xs
+
 
 ------------------------------------------------------------------------------
 -- Ex 3: implement the function middle that returns the middle value
