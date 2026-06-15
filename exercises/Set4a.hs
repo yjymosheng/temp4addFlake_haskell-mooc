@@ -105,8 +105,8 @@ distinct (x:xs ) = notElem x xs  && distinct xs
 --   middle 'b' 'a' 'c'  ==> 'b'
 --   middle 1 7 3        ==> 3
 --   middle 1 7 3        ==> 3
-
-middle = todo
+middle :: Ord a => a -> a -> a -> a
+middle a b c = max (  min a b   ) ( min ( max a b )  c  )
 
 ------------------------------------------------------------------------------
 -- Ex 4: return the range of an input list, that is, the difference
@@ -129,8 +129,11 @@ middle = todo
 --   rangeOf [1.5,1.0,1.1,1.2]  ==> 0.5
 --   rangeOf [1.5,1.0,1.1,1.2]  ==> 0.5
 
-rangeOf :: [a] -> a
-rangeOf = todo
+rangeOf :: (Num a, Ord a) => [a] -> a
+rangeOf xs  = let
+        big = maximum xs
+        small = minimum xs
+    in big - small
 
 ------------------------------------------------------------------------------
 -- Ex 5: given a (non-empty) list of (non-empty) lists, return the longest
@@ -158,7 +161,13 @@ rangeOf = todo
 --   longest ["bcd","def","ab"] ==> "bcd"
 --   longest ["bcd","def","ab"] ==> "bcd"
 
-longest = todo
+longest :: Ord a => [[a]] -> [a]
+longest xs =  snd $ foldl1  choose ( map (\s ->  ( length s ,  s )) xs  )
+    where
+      choose  (len1, a1) (len2, b2)
+        | len1 > len2 = (len1, a1)
+        | len1 < len2 = (len2, b2)
+        | otherwise   = if head a1 < head b2 then (len1, a1) else (len2, b2)
 
 ------------------------------------------------------------------------------
 -- Ex 6: Implement the function incrementKey, that takes a list of
@@ -183,8 +192,8 @@ longest = todo
 --   incrementKey 'a' [('a',3.4)] ==> [('a',4.4)]
 --   incrementKey 'a' [('a',3.4)] ==> [('a',4.4)]
 
-incrementKey :: k -> [(k,v)] -> [(k,v)]
-incrementKey = todo
+incrementKey ::( Eq k,  Num v  )=>  k -> [(k,v)] -> [(k,v)]
+incrementKey k = map (\s -> if fst s == k then (fst s , snd s +1)  else s )
 
 ------------------------------------------------------------------------------
 -- Ex 7: compute the average of a list of values of the Fractional
@@ -206,7 +215,7 @@ incrementKey = todo
 -- 长度转换为 Fractional 类型
 
 average :: Fractional a => [a] -> a
-average xs = todo
+average xs = sum xs  / (fromIntegral . length $  xs )
 
 ------------------------------------------------------------------------------
 -- Ex 8: given a map from player name to score and two players, return
@@ -236,7 +245,11 @@ average xs = todo
 --     ==> "Lisa"
 
 winner :: Map.Map String Int -> String -> String -> String
-winner scores player1 player2 = todo
+winner scores player1 player2 = let 
+    socre1 =  Map.findWithDefault 0  player1 scores
+    socre2 =  Map.findWithDefault 0  player2 scores
+    in if socre1 >= socre2 then player1 else player2
+
 
 ------------------------------------------------------------------------------
 -- Ex 9: compute how many times each value in the list occurs. Return
