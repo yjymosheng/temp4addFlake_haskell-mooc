@@ -245,7 +245,7 @@ average xs = sum xs  / (fromIntegral . length $  xs )
 --     ==> "Lisa"
 
 winner :: Map.Map String Int -> String -> String -> String
-winner scores player1 player2 = let 
+winner scores player1 player2 = let
     socre1 =  Map.findWithDefault 0  player1 scores
     socre2 =  Map.findWithDefault 0  player2 scores
     in if socre1 >= socre2 then player1 else player2
@@ -271,7 +271,7 @@ winner scores player1 player2 = let
 --     ==> Map.fromList [(False,3),(True,1)]
 
 freqs :: (Eq a, Ord a) => [a] -> Map.Map a Int
-freqs xs = todo
+freqs = foldr (\s -> Map.insertWith (+) s 1 ) Map.empty
 
 ------------------------------------------------------------------------------
 -- Ex 10: recall the withdraw example from the course material. Write a
@@ -319,8 +319,9 @@ freqs xs = todo
 --     ==> fromList [("Bob",100),("Mike",50)]
 
 transfer :: String -> String -> Int -> Map.Map String Int -> Map.Map String Int
-transfer from to amount bank = todo
-
+transfer from to amount bank
+    |amount >= 0 &&  Map.member from bank && Map.member to  bank  && Map.findWithDefault 0 from bank >= amount =  Map.adjust (\s -> s - amount) from $ Map.adjust (+amount) to bank 
+    | otherwise =  bank
 ------------------------------------------------------------------------------
 -- Ex 11: given an Array and two indices, swap the elements in the indices.
 -- 练习11：给定一个数组和两个索引，交换索引处的元素。
@@ -333,7 +334,8 @@ transfer from to amount bank = todo
 --         ==> array (1,4) [(1,"one"),(2,"three"),(3,"two"),(4,"four")]
 
 swap :: Ix i => i -> i -> Array i a -> Array i a
-swap i j arr = todo
+swap i j arr = arr // [(i, arr ! j), (j, arr ! i)]
+
 
 ------------------------------------------------------------------------------
 -- Ex 12: given an Array, find the index of the largest element. You
@@ -348,4 +350,4 @@ swap i j arr = todo
 -- 提示：查看 Data.Array.indices 或 Data.Array.assocs
 
 maxIndex :: (Ix i, Ord a) => Array i a -> i
-maxIndex = todo
+maxIndex xs = fst $  foldl1 ( \(i1, val1) (i2 , val2 ) -> if val1 > val2 then (i1 ,val1) else (i2,val2 )  ) (assocs xs ) 
