@@ -20,7 +20,9 @@ data Tree a = Empty | Node a (Tree a) (Tree a)
 -- 因为树可能为空（即只有 Empty）
 
 valAtRoot :: Tree a -> Maybe a
-valAtRoot t = todo
+valAtRoot Empty = Nothing
+valAtRoot (Node a _ _ ) = Just a
+
 
 ------------------------------------------------------------------------------
 -- Ex 2: compute the size of a tree, that is, the number of Node
@@ -36,7 +38,9 @@ valAtRoot t = todo
 --   treeSize (Node 3 (Node 7 Empty Empty) (Node 1 Empty Empty))  ==>  3
 
 treeSize :: Tree a -> Int
-treeSize t = todo
+treeSize Empty  =  0
+treeSize (Node _ l r )  =   1 + treeSize l + treeSize r
+
 
 ------------------------------------------------------------------------------
 -- Ex 3: get the largest value in a tree of positive Ints. The
@@ -52,7 +56,10 @@ treeSize t = todo
 --   treeMax (Node 3 (Node 5 Empty Empty) (Node 4 Empty Empty))  ==>  5
 
 treeMax :: Tree Int -> Int
-treeMax = todo
+treeMax  t = go t  0
+  where
+    go Empty a  = max  0 a
+    go (Node x  l r ) a  =  max x  ( max (go l a) ( go r a) ) 
 
 ------------------------------------------------------------------------------
 -- Ex 4: implement a function that checks if all tree values satisfy a
@@ -70,7 +77,9 @@ treeMax = todo
 --   allValues (>0) (Node 1 Empty (Node 0 Empty Empty))  ==>  False
 
 allValues :: (a -> Bool) -> Tree a -> Bool
-allValues condition tree = todo
+allValues condition Empty = True
+allValues condition (Node  x l r  )= condition x  &&  allValues condition l && allValues condition r 
+
 
 ------------------------------------------------------------------------------
 -- Ex 5: implement map for trees.
@@ -163,7 +172,8 @@ mapTree f t = todo
 --                 (Node 3 Empty Empty))
 
 cull :: Eq a => a -> Tree a -> Tree a
-cull val tree = todo
+cull val tree@(Node  a l r )= if a == val then  Empty else  Node a  (cull val  l) (cull val  r ) 
+cull val tree = tree
 
 ------------------------------------------------------------------------------
 -- Ex 7: check if a tree is ordered. A tree is ordered if:
@@ -237,7 +247,8 @@ cull val tree = todo
 --                     (Node 3 Empty Empty))   ==>   True
 
 isOrdered :: Ord a => Tree a -> Bool
-isOrdered = todo
+isOrdered Empty = True 
+isOrdered (Node  a  l r )=  allValues (<a ) l  &&   allValues (>a ) r && isOrdered l && isOrdered r
 
 ------------------------------------------------------------------------------
 -- Ex 8: a path in a tree can be represented as a list of steps that
