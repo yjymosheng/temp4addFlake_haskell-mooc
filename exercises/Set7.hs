@@ -32,12 +32,12 @@ data Velocity = Velocity Double
 -- velocity computes a velocity given a distance and a time
 -- velocity 根据给定的距离和时间计算速度
 velocity :: Distance -> Time -> Velocity
-velocity = todo
+velocity (Distance x)  (Time s ) = Velocity $ x  /s 
 
 -- travel computes a distance given a velocity and a time
 -- travel 根据给定的速度和时间计算距离
 travel :: Velocity -> Time -> Distance
-travel = todo
+travel (Velocity v ) (Time t )= Distance $  v * t 
 
 ------------------------------------------------------------------------------
 -- Ex 2: let's implement a simple Set datatype. A Set is a list of
@@ -65,18 +65,26 @@ data Set a = Set [a]
 -- emptySet is a set with no elements
 -- emptySet 是一个没有元素的集合
 emptySet :: Set a
-emptySet = todo
+emptySet = Set []
 
 -- member tests if an element is in a set
 -- member 测试一个元素是否在集合中
-member :: Eq a => a -> Set a -> Bool
-member = todo
+member :: Ord a => a -> Set a -> Bool
+member x emptySet = False
+member x (Set (y:ys))
+  | x == y    = True
+  | x < y     = False   -- 关键！因为列表升序，后面都比 y 大，不可能有 x 了
+  | otherwise = member x (Set ys)
 
 -- add a member to a set
 -- 向集合中添加一个成员
-add :: a -> Set a -> Set a
-add = todo
-
+add :: Ord a => a -> Set a -> Set a
+add x (Set []) = Set [x]
+add x (Set (y:ys))
+  | x == y    = Set (y:ys)          
+  | x < y     = Set (x : y : ys)    
+  | otherwise = case add x (Set ys) of
+                  Set rest -> Set (y : rest) 
 ------------------------------------------------------------------------------
 -- Ex 3: a state machine for baking a cake. The type Event represents
 -- 练习3：烤蛋糕的状态机。Event 类型表示
