@@ -32,12 +32,12 @@ data Velocity = Velocity Double
 -- velocity computes a velocity given a distance and a time
 -- velocity 根据给定的距离和时间计算速度
 velocity :: Distance -> Time -> Velocity
-velocity (Distance x)  (Time s ) = Velocity $ x  /s 
+velocity (Distance x)  (Time s ) = Velocity $ x  /s
 
 -- travel computes a distance given a velocity and a time
 -- travel 根据给定的速度和时间计算距离
 travel :: Velocity -> Time -> Distance
-travel (Velocity v ) (Time t )= Distance $  v * t 
+travel (Velocity v ) (Time t )= Distance $  v * t
 
 ------------------------------------------------------------------------------
 -- Ex 2: let's implement a simple Set datatype. A Set is a list of
@@ -70,7 +70,7 @@ emptySet = Set []
 -- member tests if an element is in a set
 -- member 测试一个元素是否在集合中
 member :: Ord a => a -> Set a -> Bool
-member x emptySet = False
+member x (Set []) = False
 member x (Set (y:ys))
   | x == y    = True
   | x < y     = False   -- 关键！因为列表升序，后面都比 y 大，不可能有 x 了
@@ -81,10 +81,10 @@ member x (Set (y:ys))
 add :: Ord a => a -> Set a -> Set a
 add x (Set []) = Set [x]
 add x (Set (y:ys))
-  | x == y    = Set (y:ys)          
-  | x < y     = Set (x : y : ys)    
+  | x == y    = Set (y:ys)
+  | x < y     = Set (x : y : ys)
   | otherwise = case add x (Set ys) of
-                  Set rest -> Set (y : rest) 
+                  Set rest -> Set (y : rest)
 ------------------------------------------------------------------------------
 -- Ex 3: a state machine for baking a cake. The type Event represents
 -- 练习3：烤蛋糕的状态机。Event 类型表示
@@ -140,10 +140,19 @@ add x (Set (y:ys))
 data Event = AddEggs | AddFlour | AddSugar | Mix | Bake
   deriving (Eq,Show)
 
-data State = Start | Error | Finished
+data State = Start |AfterEggs | AfterFlour | AfterSugar | BeforeMix | AfterMix | Error | Finished
   deriving (Eq,Show)
 
-step = todo
+step :: State -> Event -> State
+step Start AddEggs =  AfterEggs
+step AfterEggs AddFlour =  AfterFlour
+step AfterEggs AddSugar =  AfterSugar
+step AfterSugar AddFlour =  BeforeMix
+step AfterFlour AddSugar =  BeforeMix
+step BeforeMix Mix =  AfterMix
+step AfterMix Bake =  Finished
+step Finished _ =  Finished
+step _ _ = Error
 
 -- do not edit this
 -- 不要编辑这个
@@ -171,7 +180,13 @@ bake events = go Start events
 --   average (1.0 :| [2.0,3.0])  ==>  2.0
 
 average :: Fractional a => NonEmpty a -> a
-average = todo
+average xs = sums xs / fromIntegral ( lens xs)
+  where
+    sums (a :| []) =   a
+    sums (a :| as) =   a + sum as
+    lens (a :| []) =   1
+    lens (a :| as )  =   1 + length as
+
 
 ------------------------------------------------------------------------------
 -- Ex 5: reverse a NonEmpty list.
@@ -181,7 +196,8 @@ average = todo
 -- 附：Data.List.NonEmpty 类型已经为你导入
 
 reverseNonEmpty :: NonEmpty a -> NonEmpty a
-reverseNonEmpty = todo
+reverseNonEmpty (a :| [] )= a :|  []
+reverseNonEmpty (a :| as)= last as :|  tail (reverse as) ++ [a]
 
 ------------------------------------------------------------------------------
 -- Ex 6: implement Semigroup instances for the Distance, Time and
@@ -199,6 +215,17 @@ reverseNonEmpty = todo
 --    ==> Velocity 20
 --    ==> Velocity 20
 
+instance Semigroup Distance  where
+  (<>) :: Distance -> Distance -> Distance
+  (Distance a ) <> (Distance b ) =  Distance $ a + b
+
+instance Semigroup Time where
+  (<>) :: Time -> Time -> Time
+  (Time a ) <> (Time b ) =  Time $ a + b
+
+instance Semigroup Velocity where
+  (<>) :: Velocity -> Velocity -> Velocity
+  (Velocity a ) <> (Velocity b ) =  Velocity $ a + b
 
 ------------------------------------------------------------------------------
 -- Ex 7: implement a Monoid instance for the Set type from exercise 2.
@@ -212,6 +239,16 @@ reverseNonEmpty = todo
 -- What are the class constraints for the instances?
 -- 实例的类约束是什么？
 
+instance Ord a => Semigroup (Set a) where
+  (<>) :: Set a -> Set a -> Set a
+  (<>) (Set xs) set2 = foldr add set2 xs
+
+
+
+instance Ord a => Monoid (Set a) where
+  mempty = emptySet
+  mappend = (<>)
+  mconcat = foldr (<>) mempty
 
 ------------------------------------------------------------------------------
 -- Ex 8: below you'll find two different ways of representing
@@ -249,18 +286,24 @@ reverseNonEmpty = todo
 
 data Operation1 = Add1 Int Int
                 | Subtract1 Int Int
+                | Multiply1 Int Int
   deriving Show
 
 compute1 :: Operation1 -> Int
 compute1 (Add1 i j) = i+j
 compute1 (Subtract1 i j) = i-j
+compute1 (Multiply1 i j) = i*j
 
 show1 :: Operation1 -> String
-show1 = todo
+show1 (Add1 i j) = show i ++ "+"  ++ show j
+show1 (Subtract1 i j) = show i ++ "-"  ++ show j
+show1 (Multiply1 i j) = show i ++ "*"  ++ show j
 
 data Add2 = Add2 Int Int
   deriving Show
 data Subtract2 = Subtract2 Int Int
+  deriving Show
+data Multiply2 = Multiply2 Int Int
   deriving Show
 
 class Operation2 op where
@@ -272,6 +315,20 @@ instance Operation2 Add2 where
 instance Operation2 Subtract2 where
   compute2 (Subtract2 i j) = i-j
 
+instance Operation2 Multiply2 where
+  compute2 (Multiply2 i j) = i*j
+
+class Show2 op where
+  show2  :: op -> String
+
+instance Show2 Add2 where
+  show2 (Add2 i j) = show i ++ "+"  ++ show j
+
+instance Show2 Subtract2 where
+  show2 (Subtract2 i j) = show i ++ "-"  ++ show j
+
+instance Show2 Multiply2 where
+  show2 (Multiply2 i j) = show i ++ "*" ++ show j
 
 ------------------------------------------------------------------------------
 -- Ex 9: validating passwords. Below you'll find a type
@@ -308,17 +365,18 @@ instance Operation2 Subtract2 where
 data PasswordRequirement =
   MinimumLength Int
   | ContainsSome String    -- contains at least one of given characters
-  | ContainsSome String    -- 包含给定字符中的至少一个
   | DoesNotContain String  -- does not contain any of the given characters
-  | DoesNotContain String  -- 不包含给定字符中的任何一个
   | And PasswordRequirement PasswordRequirement -- and'ing two requirements
-  | And PasswordRequirement PasswordRequirement -- 对两个要求取与
   | Or PasswordRequirement PasswordRequirement  -- or'ing
-  | Or PasswordRequirement PasswordRequirement  -- 对两个要求取或
   deriving Show
 
 passwordAllowed :: String -> PasswordRequirement -> Bool
-passwordAllowed = todo
+passwordAllowed x ( MinimumLength a)  = length x  >=  a
+passwordAllowed x (ContainsSome a) =  any (`elem` x) a
+passwordAllowed x (DoesNotContain a ) = all (`notElem` x ) a
+passwordAllowed x (And a b ) = passwordAllowed x a  && passwordAllowed x b
+passwordAllowed x (Or a b ) = passwordAllowed x a  || passwordAllowed x b
+
 
 ------------------------------------------------------------------------------
 -- Ex 10: a DSL for simple arithmetic expressions with addition and
@@ -355,17 +413,21 @@ passwordAllowed = todo
 --     ==> "(3*(1+1))"
 --
 
-data Arithmetic = Todo
+data Arithmetic = Literal Integer
+                | Operation String Arithmetic Arithmetic 
   deriving Show
 
 literal :: Integer -> Arithmetic
-literal = todo
+literal  =   Literal
 
 operation :: String -> Arithmetic -> Arithmetic -> Arithmetic
-operation = todo
+operation =  Operation 
 
 evaluate :: Arithmetic -> Integer
-evaluate = todo
+evaluate (Literal a ) =  a 
+evaluate (Operation "+" a b ) =  evaluate a  + evaluate b  
+evaluate (Operation "*" a b ) =  evaluate a  * evaluate b  
 
 render :: Arithmetic -> String
-render = todo
+render (Literal a ) =  show a 
+render (Operation op a b ) =  "(" ++ render a ++ op ++ render  b ++ ")"
