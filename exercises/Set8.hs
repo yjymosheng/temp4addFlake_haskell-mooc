@@ -179,7 +179,11 @@ renderListExample = renderList justADot (9,11) (9,11)
 --      ["000000","000000","000000"]]
 
 dotAndLine :: Picture
-dotAndLine = todo
+dotAndLine = Picture f 
+  where
+    f (Coord 3 4 ) =  white
+    f (Coord _ 8) = pink
+    f _ = black
 ------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------
@@ -233,10 +237,11 @@ dotAndLine = todo
 --          ["7f0000","7f0000","7f0000"]]
 
 blendColor :: Color -> Color -> Color
-blendColor = todo
+blendColor (Color a b c ) (Color x y z ) =  Color (f a x ) (f b y ) (f c z )
+  where f arg1 arg2 = (arg1 + arg2 ) `div` 2 
 
 combine :: (Color -> Color -> Color) -> Picture -> Picture -> Picture
-combine = todo
+combine f (Picture  a ) (Picture b ) = Picture $ \s -> f (a s) (b s)
 
 ------------------------------------------------------------------------------
 
@@ -336,7 +341,9 @@ exampleCircle = fill red (circle 80 100 200)
 --        ["000000","000000","000000","000000","000000","000000"]]
 
 rectangle :: Int -> Int -> Int -> Int -> Shape
-rectangle x0 y0 w h = todo
+rectangle x0 y0 w h = Shape f 
+  where f (Coord x y ) | x0 <= x  && x <  (x0 + w) && y0 <= y  && y <(y0 +  h) = True 
+                      | otherwise = False
 ------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------

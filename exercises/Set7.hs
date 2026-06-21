@@ -216,15 +216,12 @@ reverseNonEmpty (a :| as)= last as :|  tail (reverse as) ++ [a]
 --    ==> Velocity 20
 
 instance Semigroup Distance  where
-  (<>) :: Distance -> Distance -> Distance
   (Distance a ) <> (Distance b ) =  Distance $ a + b
 
 instance Semigroup Time where
-  (<>) :: Time -> Time -> Time
   (Time a ) <> (Time b ) =  Time $ a + b
 
 instance Semigroup Velocity where
-  (<>) :: Velocity -> Velocity -> Velocity
   (Velocity a ) <> (Velocity b ) =  Velocity $ a + b
 
 ------------------------------------------------------------------------------
@@ -240,7 +237,6 @@ instance Semigroup Velocity where
 -- 实例的类约束是什么？
 
 instance Ord a => Semigroup (Set a) where
-  (<>) :: Set a -> Set a -> Set a
   (<>) (Set xs) set2 = foldr add set2 xs
 
 
