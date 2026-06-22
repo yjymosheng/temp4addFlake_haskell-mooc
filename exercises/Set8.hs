@@ -179,7 +179,7 @@ renderListExample = renderList justADot (9,11) (9,11)
 --      ["000000","000000","000000"]]
 
 dotAndLine :: Picture
-dotAndLine = Picture f 
+dotAndLine = Picture f
   where
     f (Coord 3 4 ) =  white
     f (Coord _ 8) = pink
@@ -238,7 +238,7 @@ dotAndLine = Picture f
 
 blendColor :: Color -> Color -> Color
 blendColor (Color a b c ) (Color x y z ) =  Color (f a x ) (f b y ) (f c z )
-  where f arg1 arg2 = (arg1 + arg2 ) `div` 2 
+  where f arg1 arg2 = (arg1 + arg2 ) `div` 2
 
 combine :: (Color -> Color -> Color) -> Picture -> Picture -> Picture
 combine f (Picture  a ) (Picture b ) = Picture $ \s -> f (a s) (b s)
@@ -341,8 +341,8 @@ exampleCircle = fill red (circle 80 100 200)
 --        ["000000","000000","000000","000000","000000","000000"]]
 
 rectangle :: Int -> Int -> Int -> Int -> Shape
-rectangle x0 y0 w h = Shape f 
-  where f (Coord x y ) | x0 <= x  && x <  (x0 + w) && y0 <= y  && y <(y0 +  h) = True 
+rectangle x0 y0 w h = Shape f
+  where f (Coord x y ) | x0 <= x  && x <  (x0 + w) && y0 <= y  && y <(y0 +  h) = True
                       | otherwise = False
 ------------------------------------------------------------------------------
 
@@ -366,10 +366,10 @@ rectangle x0 y0 w h = Shape f
 -- 所有点。
 
 union :: Shape -> Shape -> Shape
-union = todo
+union (Shape a ) ( Shape b )= Shape $ \s -> a s || b s
 
 cut :: Shape -> Shape -> Shape
-cut = todo
+cut (Shape a ) ( Shape b )= Shape $ \s -> a s && not (b s)
 ------------------------------------------------------------------------------
 
 -- Here's a snowman, built using union from circles and rectangles.
@@ -400,16 +400,14 @@ exampleSnowman = fill white snowman
 -- Example: renderList (paintSolid pink (dot 10 11) justADot) (9,11) (9,12)
 -- 示例：renderList (paintSolid pink (dot 10 11) justADot) (9,11) (9,12)
 --   ==> [["000000","000000","000000"],
---   ==> [["000000","000000","000000"],
---        ["000000","ffffff","000000"],
 --        ["000000","ffffff","000000"],
 --        ["000000","ff69b4","000000"],
---        ["000000","ff69b4","000000"],
---        ["000000","000000","000000"]]
 --        ["000000","000000","000000"]]
 
 paintSolid :: Color -> Shape -> Picture -> Picture
-paintSolid color shape base = todo
+paintSolid color (Shape shape) (Picture base) = Picture f
+  where f coord | shape coord = color
+                | otherwise = base coord
 ------------------------------------------------------------------------------
 
 allWhite :: Picture
@@ -459,18 +457,15 @@ stripes a b = Picture f
 -- renderList (paint (stripes red white) (rectangle 0 0 2 4) (solid black)) (0,4) (0,4)
 -- renderList (paint (stripes red white) (rectangle 0 0 2 4) (solid black)) (0,4) (0,4)
 --  ==> [["ff0000","ff0000","000000","000000","000000"],
---  ==> [["ff0000","ff0000","000000","000000","000000"],
---       ["ffffff","ffffff","000000","000000","000000"],
 --       ["ffffff","ffffff","000000","000000","000000"],
 --       ["ff0000","ff0000","000000","000000","000000"],
---       ["ff0000","ff0000","000000","000000","000000"],
 --       ["ffffff","ffffff","000000","000000","000000"],
---       ["ffffff","ffffff","000000","000000","000000"],
---       ["000000","000000","000000","000000","000000"]]
 --       ["000000","000000","000000","000000","000000"]]
 
 paint :: Picture -> Shape -> Picture -> Picture
-paint pat shape base = todo
+paint (Picture pat) (Shape shape) (Picture base) = Picture f
+  where  f x  | shape x = pat x
+              | otherwise =  base x
 ------------------------------------------------------------------------------
 
 -- Here's a patterned version of the snowman example. See it by running:
@@ -553,19 +548,26 @@ xy = Picture f
 data Fill = Fill Color
 
 instance Transform Fill where
-  apply = todo
+  apply (Fill c) (Picture f )=  Picture g
+    where g coord = c
 
 data Zoom = Zoom Int
   deriving Show
 
 instance Transform Zoom where
-  apply = todo
+  apply (Zoom x ) (Picture f )=  Picture g
+    where g = f  . zoomCoord x
 
 data Flip = FlipX | FlipY | FlipXY
   deriving Show
 
 instance Transform Flip where
-  apply = todo
+  apply FlipX (Picture f )=  Picture g
+    where g (Coord x y  ) = f ( Coord  (-x ) y )
+  apply FlipY (Picture f )=  Picture g
+    where g (Coord x y  ) = f ( Coord  x (-y ))
+  apply flipXY (Picture f )=  Picture g
+    where g (Coord x y  ) = f  ( Coord  y  x )
 ------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------
@@ -585,8 +587,8 @@ instance Transform Flip where
 data Chain a b = Chain a b
   deriving Show
 
-instance Transform (Chain a b) where
-  apply = todo
+instance (Transform a, Transform b) => Transform (Chain a b) where
+  apply (Chain a b) = apply a . apply b
 ------------------------------------------------------------------------------
 
 -- Now we can redefine largeVerticalStripes using the above Transforms.
@@ -641,7 +643,22 @@ data Blur = Blur
   deriving Show
 
 instance Transform Blur where
-  apply = todo
+  apply Blur (Picture f) = Picture g
+    where
+      g coord = averageColors [f coord,
+                               f (up coord),
+                               f (down coord),
+                               f (left coord),
+                               f (right coord)]
+      up (Coord x y) = Coord x (y-1)
+      down (Coord x y) = Coord x (y+1)
+      left (Coord x y) = Coord (x-1) y
+      right (Coord x y) = Coord (x+1) y
+      averageColors colors = Color avgR avgG avgB
+        where
+          avgR = sum (map getRed colors) `div` 5
+          avgG = sum (map getGreen colors) `div` 5
+          avgB = sum (map getBlue colors) `div` 5
 ------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------
@@ -667,7 +684,7 @@ data BlurMany = BlurMany Int
   deriving Show
 
 instance Transform BlurMany where
-  apply = todo
+  apply (BlurMany n) = foldr (.) id (replicate n (apply Blur))
 ------------------------------------------------------------------------------
 
 -- Here's a blurred version of our original snowman. See it by running
