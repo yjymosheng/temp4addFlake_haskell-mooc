@@ -3,6 +3,8 @@
 .stack-work
 score.json
 
+**/*.png
+
 # Nix flake
 .envrc
 **/dist-newstyle/
