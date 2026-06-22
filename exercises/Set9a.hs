@@ -38,7 +38,7 @@ import Mooc.Todo
 -- 否则返回 "Ok."。
 
 workload :: Int -> Int -> String
-workload nExercises hoursPerExercise = todo
+workload a b | a * b > 100 =  "Holy moly!" | a * b < 10 = "Piece of cake!" | otherwise = "Ok."
 
 ------------------------------------------------------------------------------
 -- Ex 2: Implement the function echo that builds a string like this:
@@ -57,7 +57,9 @@ workload nExercises hoursPerExercise = todo
 -- 提示：使用递归
 
 echo :: String -> String
-echo = todo
+echo [] = []
+echo s = s ++ ", " ++ echo (tail s)
+
 
 ------------------------------------------------------------------------------
 -- Ex 3: A country issues some banknotes. The banknotes have a serial
@@ -77,7 +79,8 @@ echo = todo
 -- 是有效的。
 
 countValid :: [String] -> Int
-countValid = todo
+countValid ss = length (filter valid  ss)
+  where valid s =  ( last (take 3 s )== last (take 5 s) ) ||   (last (take 4 s )== last (take 6 s))
 
 ------------------------------------------------------------------------------
 -- Ex 4: Find the first element that repeats two or more times _in a
@@ -95,7 +98,11 @@ countValid = todo
 --   repeated [1,2,1,2,3,3] ==> Just 3
 
 repeated :: Eq a => [a] -> Maybe a
-repeated = todo
+repeated = go
+  where
+    go [] =  Nothing
+    go [x] =  Nothing
+    go (a : b :xs )  =  if  a == b   then Just a  else go (b: xs)
 
 ------------------------------------------------------------------------------
 -- Ex 5: A laboratory has been collecting measurements. Some of the
@@ -132,7 +139,12 @@ repeated = todo
 --     ==> Left "no data"
 
 sumSuccess :: [Either String Int] -> Either String Int
-sumSuccess = todo
+sumSuccess es =
+    let (total, hasSuccess) = foldr go (0, False) es
+    in if hasSuccess then Right total else Left "no data"
+  where
+    go (Right x) (acc, _) = (acc + x, True)
+    go (Left _)  (acc, has) = (acc, has)
 
 ------------------------------------------------------------------------------
 -- Ex 6: A combination lock can either be open or closed. The lock
@@ -170,37 +182,45 @@ sumSuccess = todo
 --   isOpen (open "1234" (lock (changeCode "0000" (open "1234" aLock)))) ==> False
 --   isOpen (open "1234" (lock (changeCode "0000" (open "1234" aLock)))) ==> False
 
-data Lock = LockUndefined
+data Status   =  Open | Closed
+  deriving Show
+
+data Lock = Lock Status String
   deriving Show
 
 -- aLock should be a locked lock with the code "1234"
 -- aLock 应该是一个密码为 "1234" 的锁定锁
 aLock :: Lock
-aLock = todo
+aLock = Lock Closed "1234"
 
 -- isOpen returns True if the lock is open
 -- isOpen 在锁打开时返回 True
 isOpen :: Lock -> Bool
-isOpen = todo
+isOpen (Lock Open _)=  True
+isOpen a =  False
+
 
 -- open tries to open the lock with the given code. If the code is
 -- open 尝试用给定的密码打开锁。如果密码
 -- wrong, nothing happens.
 -- 错误，则不会发生任何变化。
 open :: String -> Lock -> Lock
-open = todo
+open s (Lock Closed a )=  if s== a  then Lock Open a  else  Lock Closed a
+open s (Lock Open a )=   Lock Open a
 
 -- lock closes a lock. If the lock is already closed, nothing happens.
 -- lock 关闭锁。如果锁已经关闭，则不会发生任何变化。
 lock :: Lock -> Lock
-lock = todo
+lock (Lock Open a )=   Lock Closed a
+lock (Lock Closed a )=   Lock Closed a
 
 -- changeCode changes the code of an open lock. If the lock is closed,
 -- changeCode 更改打开锁的密码。如果锁是关闭的，
 -- nothing happens.
 -- 则不会发生任何变化。
 changeCode :: String -> Lock -> Lock
-changeCode = todo
+changeCode s (Lock Open a )=   Lock Open s
+changeCode s (Lock Closed a )=   Lock Closed a
 
 ------------------------------------------------------------------------------
 -- Ex 7: Here's a type Text that just wraps a String. Implement an Eq
@@ -227,6 +247,8 @@ changeCode = todo
 data Text = Text String
   deriving Show
 
+instance Eq Text where
+  (Text a )==(Text b ) =  filter (not . isSpace) a ==  filter (not . isSpace) b
 
 ------------------------------------------------------------------------------
 -- Ex 8: We can represent functions or mappings as lists of pairs.
@@ -283,7 +305,7 @@ data Text = Text String
 --       ==> [("a",1),("b",2)]
 
 compose :: (Eq a, Eq b) => [(a,b)] -> [(b,c)] -> [(a,c)]
-compose = todo
+compose xs ys = [(a,c) | (a,b) <- xs, (b',c) <- ys, b == b']
 
 ------------------------------------------------------------------------------
 -- Ex 9: Reorder a list using a list of indices.
@@ -354,4 +376,4 @@ multiply :: Permutation -> Permutation -> Permutation
 multiply p q = map (\i -> p !! (q !! i)) (identity (length p))
 
 permute :: Permutation -> [a] -> [a]
-permute = todo
+permute p xs = [ xs !! i | j <- [0 .. length p - 1], let i = head [idx | (idx, val) <- zip [0..] p, val == j] ]
