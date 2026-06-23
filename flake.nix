@@ -72,13 +72,6 @@
 
             LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [ pkgs.zlib ];
 
-            shellHook = ''
-              # Automatic updates are only performed when the hackage index does not exist.
-              if ! cabal list --simple-output >/dev/null 2>&1; then
-                echo "First time using, downloading the Hackage index..."
-                cabal update
-              fi
-            '';
           };
         }
       );
