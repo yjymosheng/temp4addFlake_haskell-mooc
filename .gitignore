@@ -9,3 +9,4 @@ score.json
 .envrc
 **/dist-newstyle/
 .direnv/
+!flake.lock
