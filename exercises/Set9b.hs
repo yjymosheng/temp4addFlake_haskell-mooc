@@ -75,10 +75,10 @@ type Col   = Int
 type Coord = (Row, Col)
 
 nextRow :: Coord -> Coord
-nextRow (i,j) = todo
+nextRow (i,j) = (i+1 , 1)
 
 nextCol :: Coord -> Coord
-nextCol (i,j) = todo
+nextCol (i,j) = (i,j+1 )
 
 --------------------------------------------------------------------------------
 -- Ex 2: Implement the function prettyPrint that, given the size of
@@ -167,7 +167,15 @@ nextCol (i,j) = todo
 type Size = Int
 
 prettyPrint :: Size -> [Coord] -> String
-prettyPrint = todo
+prettyPrint n ds =
+    let initTable = replicate n $ replicate n '.'
+        setQueen table (row, col) =
+            take (row - 1) table ++
+            [take (col - 1) (table !! (row - 1)) ++ ['Q'] ++
+             drop col (table !! (row - 1))] ++
+            drop row table
+        table = foldl setQueen initTable ds
+    in unlines table
 
 --------------------------------------------------------------------------------
 -- Ex 3: The task in this exercise is to define the relations sameRow, sameCol,
@@ -207,16 +215,16 @@ prettyPrint = todo
 --   sameAntidiag (500,5) (5,500) ==> True
 
 sameRow :: Coord -> Coord -> Bool
-sameRow (i,j) (k,l) = todo
+sameRow (i,j) (k,l) = i == k
 
 sameCol :: Coord -> Coord -> Bool
-sameCol (i,j) (k,l) = todo
+sameCol (i,j) (k,l) = j == l
 
 sameDiag :: Coord -> Coord -> Bool
-sameDiag (i,j) (k,l) = todo
+sameDiag (i,j) (k,l) = k - i == l- j
 
 sameAntidiag :: Coord -> Coord -> Bool
-sameAntidiag (i,j) (k,l) = todo
+sameAntidiag (i,j) (k,l) =  i - k == l - j
 
 --------------------------------------------------------------------------------
 -- Ex 4: In chess, a queen may capture another piece in the same row, column,
@@ -227,20 +235,12 @@ sameAntidiag (i,j) (k,l) = todo
 -- 这里用字符 '#' 表示）看起来像这样：
 --
 --   .#.#.#..
---   .#.#.#..
---   ..###...
 --   ..###...
 --   ###Q####
---   ###Q####
---   ..###...
 --   ..###...
 --   .#.#.#..
---   .#.#.#..
---   #..#..#.
 --   #..#..#.
 --   ...#...#
---   ...#...#
---   ...#....
 --   ...#....
 --
 -- For multiple queens, the danger zone is the union of the danger zones for
@@ -306,7 +306,7 @@ type Candidate = Coord
 type Stack     = [Coord]
 
 danger :: Candidate -> Stack -> Bool
-danger = todo
+danger s = any (\x -> sameCol x s || sameRow x s || sameAntidiag x s || sameDiag x s)
 
 --------------------------------------------------------------------------------
 -- Ex 5: In this exercise, the task is to write a modified version of
@@ -329,7 +329,7 @@ danger = todo
 --   ...
 --
 --   *Set9b> putStrLn $ prettyPrint2 4 [(1,2),(2,4)]
---   *Set9b> putStrLn $ prettyPrint2 4 [(1,2),(2,4)]
+--   *Set19b> putStrLn $ prettyPrint2 4 [(1,2),(2,4)]
 --   #Q##
 --   #Q##
 --   ###Q
@@ -366,7 +366,7 @@ danger = todo
 -- 任何可行的解决方案在本练习中都可以。）
 
 prettyPrint2 :: Size -> Stack -> String
-prettyPrint2 = todo
+prettyPrint2 n ss = unlines $ [[if (row,col ) `elem` ss then  'Q'  else  if danger (row,col) ss  then '#' else '.' | col <- [1..n ] ] | row <- [1..n]]
 
 --------------------------------------------------------------------------------
 -- Ex 6: Now that we can check if a piece can be safely placed into a square in
@@ -442,7 +442,11 @@ prettyPrint2 = todo
 --     Q#######
 
 fixFirst :: Size -> Stack -> Maybe Stack
-fixFirst n s = todo
+fixFirst n [] = Just [] 
+fixFirst n (x@(i,j):xs) 
+    | j >  n  = Nothing 
+    |  not (danger x xs)  =  Just (x:xs )
+    | otherwise = fixFirst n (nextCol x: xs )
 
 --------------------------------------------------------------------------------
 -- Ex 7: We need two helper functions for stack management.
@@ -475,10 +479,14 @@ fixFirst n s = todo
 -- 提示：还记得 nextRow 和 nextCol 吗？使用它们！
 
 continue :: Stack -> Stack
-continue s = todo
+continue [] = [(1,1) ]
+continue (x : xs ) =  nextRow x: x :xs 
+
 
 backtrack :: Stack -> Stack
-backtrack s = todo
+backtrack [] = []
+backtrack [_] = []
+backtrack (_ : b : xs) = nextCol b : xs 
 
 --------------------------------------------------------------------------------
 -- Ex 8: Let's take a step. Our algorithm solves the problem (in a
@@ -491,12 +499,8 @@ backtrack s = todo
 -- the third row:
 --
 --   Q###
---   Q###
---   ##Q#
 --   ##Q#
 --   ####
---   ####
---   #.##
 --   #.##
 --
 -- However if we backtrack and move the queen from (2,3) to (2,4), we
@@ -505,12 +509,8 @@ backtrack s = todo
 -- 我们就能放置第三个皇后：
 --
 --   Q###
---   Q###
---   ###Q
 --   ###Q
 --   #.##
---   #.##
---   ##.#
 --   ##.#
 --
 -- Implement the function step that takes the size of a board and a
@@ -593,7 +593,9 @@ backtrack s = todo
 --     step 8 [(6,1),(5,4),(4,2),(3,5),(2,3),(1,1)] ==> [(5,5),(4,2),(3,5),(2,3),(1,1)]
 
 step :: Size -> Stack -> Stack
-step = todo
+step n s = case fixFirst n s of
+    Just s' -> continue s'
+    Nothing -> backtrack s
 
 --------------------------------------------------------------------------------
 -- Ex 9: Let's solve our puzzle! The function finish takes a partial
@@ -613,7 +615,9 @@ step = todo
 -- solve the n queens problem.
 
 finish :: Size -> Stack -> Stack
-finish = todo
+finish n s 
+    | length s <= n = finish n $ step n s
+    | otherwise = tail s
 
 solve :: Size -> Stack
 solve n = finish n [(1,1)]
