@@ -56,9 +56,9 @@ doublify = concatMap (\x -> [x, x])
 
 interleave :: [a] -> [a] -> [a]
 interleave [] []  = []
-interleave  a [] = a 
+interleave  a [] = a
 interleave  [] b = b
-interleave  (a:as)  (b:bs) = a : b :  interleave as bs 
+interleave  (a:as)  (b:bs) = a : b :  interleave as bs
 
 
 
@@ -90,7 +90,7 @@ interleave  (a:as)  (b:bs) = a : b :  interleave as bs
 -- 提示：还记得 cycle 和 zip 函数吗？
 
 deal :: [String] -> [String] -> [(String,String)]
-deal = todo
+deal a b = zip   b  $ cycle a
 
 ------------------------------------------------------------------------------
 -- Ex 4: Compute a running average. Go through a list of Doubles and
@@ -117,7 +117,11 @@ deal = todo
 
 
 averages :: [Double] -> [Double]
-averages = todo
+averages xs  =  go xs 0 0
+    where
+        go [] _ _ =  []
+        go (x : xs ) s len  = (s + x) / (len+1) : go  xs (s + x) (len+1)
+
 
 ------------------------------------------------------------------------------
 -- Ex 5: Given two lists, xs and ys, and an element z, generate an
@@ -146,7 +150,7 @@ averages = todo
 --   take 10 (alternate [1,2] [3,4,5] 0) ==> [1,2,0,3,4,5,0,1,2,0]
 
 alternate :: [a] -> [a] -> a -> [a]
-alternate xs ys z = todo
+alternate xs ys z =  cycle ( xs ++[z] ++ ys ++[z]    )
 
 ------------------------------------------------------------------------------
 -- Ex 6: Check if the length of a list is at least n. Make sure your
@@ -164,7 +168,11 @@ alternate xs ys z = todo
 --   lengthAtLeast 10 [0..]  ==> True
 
 lengthAtLeast :: Int -> [a] -> Bool
-lengthAtLeast = todo
+lengthAtLeast x as =  go x as 0
+    where
+        go x [] count =  count >= x
+        go x (a:as) count = (count == x) || go x as  (count + 1)
+
 
 ------------------------------------------------------------------------------
 -- Ex 7: The function chunks should take in a list, and a number n,
@@ -192,7 +200,8 @@ lengthAtLeast = todo
 --   take 4 (chunks 3 [0..]) ==> [[0,1,2],[1,2,3],[2,3,4],[3,4,5]]
 
 chunks :: Int -> [a] -> [[a]]
-chunks = todo
+chunks _ []  = []
+chunks n xs  = map (take n) $ takeWhile (lengthAtLeast n) (tails xs)
 
 ------------------------------------------------------------------------------
 -- Ex 8: Define a newtype called IgnoreCase, that wraps a value of
@@ -217,7 +226,13 @@ chunks = todo
 --   ignorecase "acC" == ignorecase "ABc"  ==>  False
 --   ignorecase "acC" == ignorecase "ABc"  ==>  False
 
-ignorecase = todo
+newtype IgnoreCase= IgnoreCase  String
+
+instance Eq IgnoreCase where
+    ( IgnoreCase a )== ( IgnoreCase b ) =  map toLower a  ==   map toLower  b
+
+ignorecase :: String -> IgnoreCase
+ignorecase = IgnoreCase
 
 ------------------------------------------------------------------------------
 -- Ex 9: Here's the Room type and some helper functions from the
@@ -283,4 +298,8 @@ play room (d:ds) = case move room d of Nothing -> [describe room]
                                        Just r -> describe room : play r ds
 
 maze :: Room
-maze = todo
+maze = maze1
+  where
+    maze1 = Room "Maze" [("Left", maze2), ("Right", maze3)]
+    maze2 = Room "Deeper in the maze" [("Left", maze3), ("Right", maze1)]
+    maze3 = Room "Elsewhere in the maze" [("Left", maze1), ("Right", maze2)]
