@@ -38,7 +38,10 @@ import Mooc.Todo
 -- 应该是 HELLO，第二行是 WORLD
 
 hello :: IO ()
-hello = todo
+hello =do
+    putStrLn "HELLO"
+    putStrLn "WORLD"
+
 
 ------------------------------------------------------------------------------
 -- Ex 2: define the IO operation greet that takes a name as an
@@ -47,7 +50,8 @@ hello = todo
 -- 参数，并打印一行 "HELLO name"。
 
 greet :: String -> IO ()
-greet name = todo
+greet name = putStrLn $ "HELLO " ++ name
+
 
 ------------------------------------------------------------------------------
 -- Ex 3: define the IO operation greet2 that reads a name from the
@@ -60,7 +64,9 @@ greet name = todo
 -- 尝试在你的解决方案中使用 greet 操作。
 
 greet2 :: IO ()
-greet2 = todo
+greet2 = do
+    line <- getLine
+    greet line
 
 ------------------------------------------------------------------------------
 -- Ex 4: define the IO operation readWords n which reads n lines from
@@ -82,7 +88,7 @@ greet2 = todo
 --   ["alice","bob","carl"]
 
 readWords :: Int -> IO [String]
-readWords n = todo
+readWords n = sort <$> replicateM n getLine
 
 ------------------------------------------------------------------------------
 -- Ex 5: define the IO operation readUntil f, which reads lines from
@@ -110,14 +116,18 @@ readWords n = todo
 --   ["bananas","garlic","pakchoi"]
 
 readUntil :: (String -> Bool) -> IO [String]
-readUntil f = todo
+readUntil f = do
+    line <- getLine
+    (if f line then return [] else (do
+        res <- readUntil f
+        return (line:res)))
 
 ------------------------------------------------------------------------------
 -- Ex 6: given n, print the numbers from n to 0, one per line
 -- 练习6：给定 n，打印从 n 到 0 的数字，每行一个
 
 countdownPrint :: Int -> IO ()
-countdownPrint n = todo
+countdownPrint n = mapM_ (print ) [n,n-1..0]
 
 ------------------------------------------------------------------------------
 -- Ex 7: isums n should read n numbers from the user (one per line) and
@@ -141,7 +151,13 @@ countdownPrint n = todo
 --   5. 产生 9
 
 isums :: Int -> IO Int
-isums n = todo
+isums n = foldM go 0 [1..n]
+    where
+        go b _  = do
+            a <- readLn
+            let res = a + b
+            print res
+            return res
 
 ------------------------------------------------------------------------------
 -- Ex 8: when is a useful function, but its first argument has type
@@ -152,7 +168,9 @@ isums n = todo
 -- 参数类型为 IO Bool 的函数。
 
 whenM :: IO Bool -> IO () -> IO ()
-whenM cond op = todo
+whenM cond op = do
+    a <- cond
+    when a op
 
 ------------------------------------------------------------------------------
 -- Ex 9: implement the while loop. while condition operation should
@@ -180,7 +198,8 @@ ask = do putStrLn "Y/N?"
          return $ line == "Y"
 
 while :: IO Bool -> IO () -> IO ()
-while cond op = todo
+while cond op = whenM cond (op >> while cond op )
+
 
 ------------------------------------------------------------------------------
 -- Ex 10: given a string and an IO operation, print the string, run
@@ -213,4 +232,8 @@ while cond op = todo
 --     4. 返回从用户读取的那一行
 
 debug :: String -> IO a -> IO a
-debug s op = todo
+debug s op = do 
+    putStrLn s 
+    a <- op
+    putStrLn s 
+    return a 
