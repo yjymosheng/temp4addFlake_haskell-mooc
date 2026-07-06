@@ -28,7 +28,11 @@ import Mooc.Todo
 --   "xfoobarquux"
 
 appendAll :: IORef String -> [String] -> IO ()
-appendAll = todo
+appendAll s [] = modifyIORef s (""++ )
+appendAll s (x:xs)=do
+    modifyIORef s (++x)
+    appendAll s xs
+
 
 ------------------------------------------------------------------------------
 -- Ex 2: Given two IORefs, swap the values stored in them.
@@ -52,7 +56,13 @@ appendAll = todo
 --   "x"
 
 swapIORefs :: IORef a -> IORef a -> IO ()
-swapIORefs = todo
+swapIORefs a b = do
+    x <- readIORef a
+    y <- readIORef b
+    writeIORef a y
+    writeIORef b x
+
+
 
 ------------------------------------------------------------------------------
 -- Ex 3: sometimes one bumps into IO operations that return IO
@@ -94,7 +104,8 @@ swapIORefs = todo
 --        replicateM l getLine
 
 doubleCall :: IO (IO a) -> IO a
-doubleCall op = todo
+doubleCall op = do
+    join op
 
 ------------------------------------------------------------------------------
 -- Ex 4: implement the analogue of function composition (the (.)
@@ -127,7 +138,9 @@ doubleCall op = todo
 --   3. 返回结果（类型为 b）
 
 compose :: (a -> IO b) -> (c -> IO a) -> c -> IO b
-compose op1 op2 c = todo
+compose op1 op2 c = do
+    a <- op2 c
+    op1 a
 
 ------------------------------------------------------------------------------
 -- Ex 5: Reading lines from a file. The module System.IO defines
@@ -178,7 +191,10 @@ compose op1 op2 c = todo
 --   ["module Set11b where","","import Control.Monad"]
 
 hFetchLines :: Handle -> IO [String]
-hFetchLines = todo
+hFetchLines h = do 
+    s <-hGetContents h 
+    return $ lines s 
+
 
 ------------------------------------------------------------------------------
 -- Ex 6: Given a Handle and a list of line indexes, produce the lines
@@ -197,7 +213,9 @@ hFetchLines = todo
 -- handle 中获取行的循环。
 
 hSelectLines :: Handle -> [Int] -> IO [String]
-hSelectLines h nums = todo
+hSelectLines h nums = do 
+    line <- hFetchLines h
+    return $ map   ((line !!)  . (\s -> s - 1) ) nums
 
 ------------------------------------------------------------------------------
 -- Ex 7: In this exercise we see how a program can be split into a
@@ -267,4 +285,8 @@ counter ("print",n) = (True,show n,n)
 counter ("quit",n)  = (False,"bye bye",n)
 
 interact' :: ((String,st) -> (Bool,String,st)) -> st -> IO st
-interact' f state = todo
+interact' f state = do 
+    s <- getLine
+    let (a,ns ,nst) = f (s, state)
+    putStrLn ns
+    if a then interact' f nst else return nst
