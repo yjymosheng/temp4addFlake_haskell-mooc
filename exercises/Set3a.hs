@@ -17,7 +17,6 @@ import Mooc.Todo
 import Data.Char
 import Data.Either
 import Data.List
-import Set1 (power)
 
 ------------------------------------------------------------------------------
 -- Ex 1: implement the function maxBy that takes as argument a
