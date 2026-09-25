@@ -20,7 +20,7 @@ import Data.List
 --    +++ OK, passed 1 test.
 
 isSorted :: (Show a, Ord a) => [a] -> Property
-isSorted = todo
+isSorted a =  sort a === a
 
 ------------------------------------------------------------------------------
 -- Ex 2: In this and the following exercises, we'll build a suite of
@@ -57,7 +57,7 @@ isSorted = todo
 --    +++ OK, passed 1 test.
 
 sumIsLength :: Show a => [a] -> [(a,Int)] -> Property
-sumIsLength input output = todo
+sumIsLength input output =  sum (map snd output) === length input
 
 -- This is a function that passes the sumIsLength test but is wrong
 freq1 :: Eq a => [a] -> [(a,Int)]
@@ -88,7 +88,7 @@ freq1 (x:y:xs) = [(x,1),(y,length xs + 1)]
 --    +++ OK, passed 100 tests.
 
 inputInOutput :: (Show a, Eq a) => [a] -> [(a,Int)] -> Property
-inputInOutput input output = todo
+inputInOutput input output = forAll (elements input ) (\x -> x `elem` map fst output)
 
 -- This function passes both the sumIsLength and inputInOutput tests
 freq2 :: Eq a => [a] -> [(a,Int)]
@@ -121,7 +121,7 @@ freq2 xs = map (\x -> (x,1)) xs
 --    +++ OK, passed 100 tests.
 
 outputInInput :: (Show a, Eq a) => [a] -> [(a,Int)] -> Property
-outputInInput input output = todo
+outputInInput input output = forAll (elements output) (\(x, n) -> length (filter (==x) input) == n)
 
 -- This function passes the outputInInput test but not the others
 freq3 :: Eq a => [a] -> [(a,Int)]
@@ -154,7 +154,10 @@ freq3 (x:xs) = [(x,1 + length (filter (==x) xs))]
 --    +++ OK, passed 100 tests.
 
 frequenciesProp :: ([Char] -> [(Char,Int)]) -> NonEmptyList Char -> Property
-frequenciesProp freq input = todo
+frequenciesProp freq (NonEmpty input) = let output = freq input
+  in conjoin [ sumIsLength input output
+             , inputInOutput input output
+             , outputInInput input output ]
 
 frequencies :: Eq a => [a] -> [(a,Int)]
 frequencies [] = []
@@ -191,7 +194,10 @@ frequencies (x:ys) = (x, length xs) : frequencies others
 --    [2,4,10]
 
 genList :: Gen [Int]
-genList = todo
+genList = do
+  len <- choose (3,5)
+  xs <- vectorOf len (choose (0,10))
+  return $ sort xs 
 
 ------------------------------------------------------------------------------
 -- Ex 7: Here are the datatypes Arg and Expression from Set 15. Write
@@ -234,7 +240,12 @@ data Expression = Plus Arg Arg | Minus Arg Arg
   deriving (Show, Eq)
 
 instance Arbitrary Arg where
-  arbitrary = todo
+  arbitrary = oneof [
+    Number <$> choose (0,10)
+    ,Variable <$> elements "abcxyz"]
 
 instance Arbitrary Expression where
-  arbitrary = todo
+  arbitrary =  oneof
+    [ Plus <$> arbitrary <*> arbitrary   -- Plus 两个 Arg
+    , Minus <$> arbitrary <*> arbitrary  -- Minus 两个 Arg
+    ]
